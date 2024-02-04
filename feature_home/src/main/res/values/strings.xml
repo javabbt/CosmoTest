@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nothing_found">Nothing found. Check your internet connection</string>
+    <string name="details">Details</string>
+    <string name="home">Devices</string>
+    <string name="unexpected_error">Oops, something went wrong</string>
+    <string name="light_auto">Light Auto : %b</string>
+    <string name="light_mode">Light Mode : %s</string>
+    <string name="light_val">Light Value : %d</string>
+</resources>

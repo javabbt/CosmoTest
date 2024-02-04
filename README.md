@@ -1,4 +1,4 @@
-#  Android Lydia Test App
+#  Android Cosmo Test App
 Cette application contient tous les éléments qui fourniront une base solide pour le
 application plus grande adaptée aux grandes équipes et étendue.
 

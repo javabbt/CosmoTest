@@ -32,19 +32,37 @@ class DevicesRepositoryImpl(
             }
 
             is ApiResult.Error -> {
-                result.message?.let {
-                    Result.Error(it)
-                } ?: Result.UnexpectedError(R.string.unexpected_error)
+                val devices = devicesDatabase.devicesDao().getAllDevices()
+                if(devices.isNullOrEmpty()) {
+                    result.message?.let {
+                        Result.Error(it)
+                    } ?: Result.UnexpectedError(R.string.unexpected_error)
+                } else {
+                    Result.Success(
+                        devices.map {
+                            it.toDeviceDomainModel()
+                        }
+                    )
+                }
             }
 
             is ApiResult.Exception -> {
-                result.throwable.message?.let {
-                    Result.Error(
-                        it
+                val devices = devicesDatabase.devicesDao().getAllDevices()
+                if(devices.isNullOrEmpty()) {
+                    result.throwable.message?.let {
+                        Result.Error(
+                            it
+                        )
+                    } ?: Result.UnexpectedError(
+                        R.string.unexpected_error
                     )
-                } ?: Result.UnexpectedError(
-                    R.string.unexpected_error
-                )
+                } else {
+                    Result.Success(
+                        devices.map {
+                            it.toDeviceDomainModel()
+                        }
+                    )
+                }
             }
         }
     }

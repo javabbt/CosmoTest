@@ -12,10 +12,13 @@ import com.yannick.cosmo.feature.album.domain.repository.DevicesRepository
 import com.yannick.cosmo.feature.album.domain.usecases.GetDevicesUseCase
 import com.yannick.cosmo.feature.album.domain.utils.Result
 import com.yannick.cosmo.feature.home.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class DevicesRepositoryImpl(
     private val devicesDatabase: DevicesDatabase,
-    private val getDevicesUseCase: GetDevicesUseCase
+    private val getDevicesUseCase: GetDevicesUseCase,
+
 ) : DevicesRepository {
     override suspend fun getDevices(): Result<List<DeviceUiModel>> {
         return when (val result = getDevicesUseCase()) {
@@ -32,36 +35,40 @@ class DevicesRepositoryImpl(
             }
 
             is ApiResult.Error -> {
-                val devices = devicesDatabase.devicesDao().getAllDevices()
-                if(devices.isNullOrEmpty()) {
-                    result.message?.let {
-                        Result.Error(it)
-                    } ?: Result.UnexpectedError(R.string.unexpected_error)
-                } else {
-                    Result.Success(
-                        devices.map {
-                            it.toDeviceDomainModel()
-                        }
-                    )
+                withContext(Dispatchers.IO) {
+                    val devices = devicesDatabase.devicesDao().getAllDevices()
+                    if(devices.isNullOrEmpty()) {
+                        result.message?.let {
+                            Result.Error(it)
+                        } ?: Result.UnexpectedError(R.string.unexpected_error)
+                    } else {
+                        Result.Success(
+                            devices.map {
+                                it.toDeviceDomainModel()
+                            }
+                        )
+                    }
                 }
             }
 
             is ApiResult.Exception -> {
-                val devices = devicesDatabase.devicesDao().getAllDevices()
-                if(devices.isNullOrEmpty()) {
-                    result.throwable.message?.let {
-                        Result.Error(
-                            it
+                withContext(Dispatchers.IO) {
+                    val devices = devicesDatabase.devicesDao().getAllDevices()
+                    if(devices.isNullOrEmpty()) {
+                        result.throwable.message?.let {
+                            Result.Error(
+                                it
+                            )
+                        } ?: Result.UnexpectedError(
+                            R.string.unexpected_error
                         )
-                    } ?: Result.UnexpectedError(
-                        R.string.unexpected_error
-                    )
-                } else {
-                    Result.Success(
-                        devices.map {
-                            it.toDeviceDomainModel()
-                        }
-                    )
+                    } else {
+                        Result.Success(
+                            devices.map {
+                                it.toDeviceDomainModel()
+                            }
+                        )
+                    }
                 }
             }
         }
